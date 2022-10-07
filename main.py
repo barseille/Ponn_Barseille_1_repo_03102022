@@ -81,14 +81,14 @@ headers = ['Url du livre',
            'Genre',
            'Image']
 
-with open('BooksToScrape.csv', 'w', encoding="UTF8") as file:
-    writer = csv.writer(file)
-    writer.writerow(headers)
-    writer.writerows(product)
 
-df = pd.read_csv('BooksToScrape.csv')
-df
-
-
+if os.path.existes('BooksToScrape.csv'):
+    with open('BooksToScrape.csv', 'w', encoding="UTF8") as file:
+        writer = csv.writer(file)
+        writer.writerow(headers)
+        writer.writerows(product)
+        file.close()
+else:
+    print("le document n'existe pas")
 
 
