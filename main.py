@@ -1,3 +1,4 @@
+from unicodedata import unidata_version
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -6,10 +7,10 @@ import os
 from pathlib import Path
 from slugify import slugify
 
+# specify the url
 url_principal = "http://books.toscrape.com/"
 
 star_rating = {"One": "1/5", "Two": "2/5", "Three": "3/5", "Four": "4/5", "Five": "5/5"}
-
 headers = ["product_page_url",
            "universal_product_code",
            "title",
@@ -28,30 +29,130 @@ def get_url(url):
         return (BeautifulSoup(response.content, "html.parser"))
 
 
-def category_url(url_principal):
+def get_category(url_principal):
+    # liens des catégories de "Travel" à "Crime" de la page principale
     all_category = get_url(url_principal).select("ul")[2].select("li")
-    category_url = []
-    print(category_url)
+    category_list = []
 
-    for category in all_category:
-        category_link = urljoin(url_principal, category.a["href"])
-        print(category_url)
-        category_url.append(category_link)
-        button_next = get_url(category_link).find("li", class_="next")
+    for soup_category in all_category:
+        category_url = urljoin(url_principal, soup_category.a["href"])
+        # ex : "http://books.toscrape.com/ + catalogue/category/books/travel_2/index.html"
 
+        category_list.append(category_url)
+        button_next = get_url(category_url).find("li", class_="next")
+
+        # tant qu'il existe un bouton "next", on récupère les pages catégories suivantes
         while button_next:
-            page = urljoin(category_link, button_next.a["href"])
-            button_next = get_url(page).find("li", class_="next")
-            category_url.append(page)
+            page_next = category_url.replace('index.html', '') + button_next.a["href"]
+            # ex : "http://books.toscrape.com/catalogue/category/books/mystery_3/ + page-2.html"
 
-    return (category_url)
+            button_next = get_url(page_next).find("li", class_="next")
+            category_list.append(page_next)
+
+    return (category_list)
 
 
-category_url(url_principal)
+# Récupération de chaques livres de chaques catégories
+def get_urls_books(category_url):
+    books_list = []
+    category_soup = get_url(category_url).find_all("div", class_="image_container")
+    for all_books in category_soup:
+        books_list.append(urljoin(category_url, all_books.a["href"]))
+    # ex: http://books.toscrape.com/catalogue/ + its-only-the-himalayas_981/index.html
 
-#
+    return (books_list)
+
+
+# Récupération des données d'un livre
+def get_datas_book(all_books):
+    tds = all_books.select("td")
+    product_page_url = book_url
+    universal_product_code = tds[0].text
+    title = all_books.h1.text
+    price_excluding_tax = tds[2].text
+    price_including_tax = tds[3].text
+    number_available = tds[5].text
+    product_description = all_books.select("p")[3].text
+    review_rating_link = all_books.find(class_="star-rating")["class"][1]
+    review_rating = star_rating[review_rating_link]
+
+    image_url = all_books.find('img')['src'].replace('../../', url_principal)
+
+    return ([product_page_url,
+             universal_product_code,
+             title,
+             price_including_tax,
+             price_excluding_tax,
+             number_available,
+             product_description,
+             categorie_name,
+             review_rating,
+             image_url])
+
 # # Extraction de tous les liens vers chaques livres
-# def get_url():
+# def get_url():import requests
+# from bs4 import BeautifulSoup
+# from urllib.parse import urljoin
+# import csv
+# import os
+# from pathlib import Path
+# from slugify import slugify
+#
+# # specify the url
+# url_principal = "http://books.toscrape.com/"
+#
+# star_rating = {"One": "1", "Two": "2", "Three": "3", "Four": "4", "Five": "5"}
+# headers =  ["product_page_url",
+# 			"universal_product_code",
+# 			"title",
+# 			"price_including_tax",
+# 			"price_excluding_tax",
+# 			"number_available",
+# 			"product_description",
+# 			"category",
+# 			"review_rating",
+# 			"image_url"]
+#
+#
+# def get_url(url):
+# 	response = requests.get(url)
+# 	if response.ok:
+# 		return(BeautifulSoup(response.content,"html.parser"))
+#
+#
+# def get_category(url_principal):
+#
+# 	# liens des catégories de "Travel" à "Crime" de la page principale
+# 	all_category = get_url(url_principal).select("ul")[2].select("li")
+# 	category_list = []
+#
+# 	for soup_category in all_category:
+# 		category_url = urljoin(url_principal, soup_category.a["href"])
+# 		# ex : "http://books.toscrape.com/ + catalogue/category/books/travel_2/index.html"
+#
+# 		category_list.append(category_url)
+# 		button_next = get_url(category_url).find("li", class_="next")
+#
+# 		# tant qu'il existe un bouton "next", on récupère les pages catégories suivantes
+# 		while button_next:
+# 			page_next = category_url.replace('index.html', '') + button_next.a["href"]
+#    			# ex : "http://books.toscrape.com/catalogue/category/books/mystery_3/ + page-2.html"
+#
+# 			button_next = get_url(page_next).find("li",class_="next")
+# 			category_list.append(page_next)
+#
+# 	return(category_list)
+#
+# # Récupération de chaques livres de chaques catégories
+# def get_books_urls_page(category_url):
+#
+# 	books_list = []
+# 	category_soup = get_url(category_url).find_all("div", class_="image_container")
+# 	for divs_book in category_soup:
+# 		books_list.append(urljoin(category_url, divs_book.a["href"]))
+# 		# ex: http://books.toscrape.com/catalogue/ + its-only-the-himalayas_981/index.html
+#
+# 	return(books_list)
 #     for i in range(1, 51):
 #         url_catalogue = 'https://books.toscrape.com/catalogue/page-'
 #         response = requests.get(url_catalogue + str(i) + '.html')
