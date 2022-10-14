@@ -1,6 +1,20 @@
 # Books to scrape
+1 - Extraction des informations du site Bookstoscrape.com :
 
+● product_page_url
+● universal_ product_code (upc)
+● title
+● price_including_tax
+● price_excluding_tax
+● number_available
+● product_description
+● category
+● review_rating
+● image_url
 
+2 - Transformation et nettoyage des données
+
+3 - Charger dans un fichier CSV par catégories 
 
 ## Pré-requis
 Ce programme utilise Python version 3.10.4
