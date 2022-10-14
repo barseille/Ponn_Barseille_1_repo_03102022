@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from slugify import slugify
 
+
 url_principal = "http://books.toscrape.com/"
 
 star_rating = {"One": "1/5", "Two": "2/5", "Three": "3/5", "Four": "4/5", "Five": "5/5"}
@@ -82,10 +83,12 @@ def get_data(soup_book):
     price_excluding_tax = tds[2].text
     number_available = tds[5].text
     product_description = soup_book.find_all("p")[3].text.lower()
+    
 
     if product_description:
         # On nettoie product_description des caractères spéciaux par des espaces
         product_description = slugify(product_description, separator=" ")
+        print(product_description)
     else:
         product_description = "none"
 
@@ -108,7 +111,7 @@ def get_data(soup_book):
 def create_csv_file(categorie_name, valeurs):
     
     # Créer un chemin concret avec Path en mode "append" et je sépare un point-virgule entre les valeurs
-    with open(Path(path, f"{categorie_name}.csv"), "a", encoding="UTF8") as file:
+    with open(Path(path, f"{categorie_name}.csv"), "a", encoding="UTF-8") as file:
         return (file.write(";".join(valeurs) + "\n"))
 
 
@@ -120,10 +123,11 @@ for category_url in get_category(url_principal):
     # Recherche du nom de la catégorie
     categorie_name = category_soup.find("h1").text
     path = categorie_name
+    path = os.path.join("bookstoscrape", categorie_name)
     
     # Création du répertoire avec les noms des catégories
-    if not os.path.exists(categorie_name):
-        os.mkdir(categorie_name)
+    if not os.path.exists(path):
+        os.mkdir(path)
         create_csv_file(categorie_name, headers)
 
     for book_url in get_books(category_url):

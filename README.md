@@ -1,3 +1,7 @@
+# Books to scrape
+
+
+
 ## Pré-requis
 Ce programme utilise Python version 3.10.4
 
@@ -27,5 +31,5 @@ pip install -r requirements.txt
 - Lancer le script : 
 
 ```
-main.py
+python main.py
 ```
