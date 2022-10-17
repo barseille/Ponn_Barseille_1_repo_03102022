@@ -108,6 +108,8 @@ def get_data(soup_book):
              image_url
              ])
 
+os.mkdir("bookstoscrape")
+
 def create_csv_file(categorie_name, valeurs):
     
     # Créer un chemin concret avec Path en mode "append" et je sépare un point-virgule entre les valeurs
