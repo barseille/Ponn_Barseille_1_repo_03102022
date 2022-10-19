@@ -29,7 +29,6 @@ def bs(url):
         return (BeautifulSoup(response.content, "html.parser"))
     
 
-
 # Extraire les pages de chaques categories
 def get_category(url_principal):
     # Récupération des liens des catégories depuis la page principale
@@ -43,14 +42,12 @@ def get_category(url_principal):
 
         category_list.append(category_url)
         button_next = bs(category_url).find("li", class_="next")
-       
-       
+          
 
         # tant qu'il existe un bouton "next", on récupère les pages catégories suivantes
         while button_next:
             next_page = urljoin(category_url, button_next.a["href"])
-        
-        
+          
             button_next = bs(next_page).find("li", class_="next")
           
             category_list.append(next_page)
@@ -68,7 +65,6 @@ def get_books(category_url):
         book_url = urljoin(category_url, i.a["href"])
         book_list.append(book_url)
         
-
     return (book_list)
 
 
@@ -88,7 +84,7 @@ def get_data(soup_book):
     if product_description:
         # On nettoie product_description des caractères spéciaux par des espaces
         product_description = slugify(product_description, separator=" ")
-        print(product_description)
+        
     else:
         product_description = "none"
 
@@ -107,6 +103,7 @@ def get_data(soup_book):
              review_rating,
              image_url
              ])
+
 
 os.mkdir("bookstoscrape")
 
@@ -149,3 +146,4 @@ for category_url in get_category(url_principal):
         # "wb" mode écriture binaire
         with open(Path(path, f"{valeurs[2][:50]}.jpg"), "wb") as file:
             file.write(image)
+            
