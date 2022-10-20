@@ -6,9 +6,10 @@ from pathlib import Path
 from slugify import slugify
 
 
+
 url_principal = "http://books.toscrape.com/"
 
-star_rating = {"One": "1/5", "Two": "2/5", "Three": "3/5", "Four": "4/5", "Five": "5/5"}
+star_rating = {"One": "1", "Two": "2", "Three": "3", "Four": "4", "Five": "5"}
 
 headers = ["product_page_url",
            "universal_product_code",
@@ -61,8 +62,8 @@ def get_books(category_url):
     category_soup = bs(category_url).find_all("div", class_="image_container")
 
     # Récupération des URL des livres
-    for i in category_soup:
-        book_url = urljoin(category_url, i.a["href"])
+    for elt in category_soup:
+        book_url = urljoin(category_url, elt.a["href"])
         book_list.append(book_url)
         
     return (book_list)
@@ -77,10 +78,14 @@ def get_data(soup_book):
     title = slugify(title,separator=" ")
     price_including_tax = tds[3].text
     price_excluding_tax = tds[2].text
-    number_available = tds[5].text
+    
+    # récupération uniquement du nombre
+    note = tds[5].text
+    note_number = note.split()
+    number_available = note_number[2].replace('(','')
+    
     product_description = soup_book.find_all("p")[3].text.lower()
     
-
     if product_description:
         # On nettoie product_description des caractères spéciaux par des espaces
         product_description = slugify(product_description, separator=" ")
