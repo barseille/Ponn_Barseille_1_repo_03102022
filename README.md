@@ -19,6 +19,12 @@
 ## Pré-requis
 Ce programme utilise Python version 3.10.4
 
+Si besoin de mettre à jour pip :
+
+```
+python -m pip install --upgrade pip
+```
+
 ## Environnement virtuel
 Créer un environnement virtuel :
 
